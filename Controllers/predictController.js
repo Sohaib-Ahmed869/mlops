@@ -2,18 +2,32 @@ const axios = require("axios");
 
 // Function to handle prediction logic
 exports.predictWeather = async (req, res) => {
-  const { temperature, humidity, windSpeed, city, day, hour } = req.body;
+  const { humidity, windSpeed, city, day, hour } = req.body;
 
   try {
-    // Call Flask API
-    const response = await axios.post("http://localhost:5000/predict", {
-      temperature,
+    // Log the request data before sending it
+    console.log("Sending data to Flask API:", {
       humidity,
       windSpeed,
       city,
       day,
       hour,
     });
+
+    // Call Flask API
+    const response = await axios.post(
+      "http://localhost:5000/predict",
+      {
+        humidity,
+        windSpeed,
+        city,
+        day,
+        hour,
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
     res.json(response.data); // Send the prediction back to the frontend
   } catch (error) {
