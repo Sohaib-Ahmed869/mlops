@@ -1,4 +1,7 @@
 const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+const { parse } = require("json2csv"); // Converts JSON to CSV
 
 const API_KEY = process.env.WEATHER_API_KEY;
 
@@ -13,38 +16,31 @@ const getWeatherByCity = async (req, res) => {
 
     const { list, city: cityInfo } = response.data;
 
-    const dailyForecast = {};
+    const weatherData = list.map((entry) => ({
+      date: entry.dt_txt.split(" ")[0],
+      time: entry.dt_txt.split(" ")[1],
+      temperature: entry.main.temp,
+      humidity: entry.main.humidity,
+      windSpeed: entry.wind.speed,
+      weatherCondition: entry.weather[0].description,
+    }));
 
-    list.forEach((entry) => {
-      const date = entry.dt_txt.split(" ")[0];
-      if (!dailyForecast[date]) {
-        dailyForecast[date] = {
-          date,
-          temperature: {
-            min: entry.main.temp_min,
-            max: entry.main.temp_max,
-          },
-          weather: entry.weather[0].description,
-        };
-      } else {
-        dailyForecast[date].temperature.min = Math.min(
-          dailyForecast[date].temperature.min,
-          entry.main.temp_min
-        );
-        dailyForecast[date].temperature.max = Math.max(
-          dailyForecast[date].temperature.max,
-          entry.main.temp_max
-        );
-      }
-    });
+    // Save data to a CSV file
+    const csv = parse(weatherData);
+    const outputDir = path.join(__dirname, "data");
+    const outputPath = path.join(outputDir, `${city}_weather.csv`);
 
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir);
+    }
+
+    fs.writeFileSync(outputPath, csv);
+
+    // Send response
     res.status(200).json({
       success: true,
-      data: {
-        city: cityInfo.name,
-        country: cityInfo.country,
-        dailyForecast: Object.values(dailyForecast),
-      },
+      message: `Weather data saved successfully for ${city}.`,
+      dataPath: outputPath,
     });
   } catch (error) {
     res.status(500).json({
