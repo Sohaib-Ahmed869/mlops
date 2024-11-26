@@ -9,6 +9,7 @@ const getWeatherByCity = async (req, res) => {
   const { city } = req.params;
 
   try {
+    console.log(API_KEY);
     // Fetch 5-day weather forecast
     const response = await axios.get(
       `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`
@@ -27,7 +28,7 @@ const getWeatherByCity = async (req, res) => {
 
     // Save data to a CSV file
     const csv = parse(weatherData);
-    const outputDir = path.join(__dirname, "data");
+    const outputDir = path.join(__dirname, "../data");
     const outputPath = path.join(outputDir, `${city}_weather.csv`);
 
     if (!fs.existsSync(outputDir)) {

@@ -6,6 +6,7 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
+dotenv.config();
 const WeatherRoutes = require("./Routes/weatherRoutes");
 
 app.use("/weather", WeatherRoutes);
