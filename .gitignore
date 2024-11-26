@@ -3,3 +3,5 @@ node_modules/
 /data
 /venv
 requirements.txt
+/dags/__pycache__
+/logs
